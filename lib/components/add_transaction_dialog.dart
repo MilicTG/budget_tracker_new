@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 
 class AddTransactionDialog extends StatefulWidget {
   final Function(TransactionItem) itemToAdd;
-
   const AddTransactionDialog({required this.itemToAdd, Key? key})
       : super(key: key);
 
@@ -16,8 +15,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final TextEditingController itemTitleController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
 
-  bool _isExpenseController = true; // <- here
-
+  bool _isExpenseController = true;
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -52,33 +50,29 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 children: [
                   const Text("Is expense?"),
                   Switch.adaptive(
-                    value: _isExpenseController,
-                    onChanged: (b) {
-                      setState(() {
-                        _isExpenseController = b;
-                      });
-                    },
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
+                      value: _isExpenseController,
+                      onChanged: (b) {
+                        setState(() {
+                          _isExpenseController = b;
+                        });
+                      })
                 ],
               ),
+              const SizedBox(
+                height: 15,
+              ),
               ElevatedButton(
-                onPressed: () {
-                  if (amountController.text.isNotEmpty &&
-                      itemTitleController.text.isNotEmpty) {
-                    widget.itemToAdd(
-                      TransactionItem(
+                  onPressed: () {
+                    if (amountController.text.isNotEmpty &&
+                        itemTitleController.text.isNotEmpty) {
+                      widget.itemToAdd(TransactionItem(
                           amount: double.parse(amountController.text),
                           itemTitle: itemTitleController.text,
-                          isExpense: _isExpenseController),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
-                child: const Text("Add"),
-              )
+                          isExpense: _isExpenseController));
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Add"))
             ],
           ),
         ),
