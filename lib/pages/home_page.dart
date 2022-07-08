@@ -6,15 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../services/budget_service.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  List<TransactionItem> items = [];
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +21,9 @@ class _HomePageState extends State<HomePage> {
             builder: (context) {
               return AddTransactionDialog(
                 itemToAdd: (transactionItem) {
-                  setState(() {
-                    items.add(transactionItem);
-                  });
+                  final budgetService =
+                      Provider.of<BudgetService>(context, listen: false);
+                  budgetService.addItem(transactionItem);
                 },
               );
             },
@@ -53,14 +46,14 @@ class _HomePageState extends State<HomePage> {
                         return CircularPercentIndicator(
                           radius: screenSize.width / 4,
                           lineWidth: 10.0,
-                          percent: .5,
+                          percent: value.balance / value.budget,
                           backgroundColor: Colors.white,
                           center: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "\$0",
-                                style: TextStyle(
+                              Text(
+                                "\$${value.balance.toString().split(".")[0]}",
+                                style: const TextStyle(
                                     fontSize: 48, fontWeight: FontWeight.bold),
                               ),
                               const Text(
@@ -68,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(fontSize: 18),
                               ),
                               Text(
-                                "Budget: \$" + value.budget.toString(),
+                                "Budget: \$${value.budget}",
                                 style: const TextStyle(fontSize: 10),
                               ),
                             ],
@@ -87,12 +80,19 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 10,
                 ),
-                ...List.generate(
-                  items.length,
-                  (index) => TransactionCard(
-                    item: items[index],
-                  ),
-                ),
+                Consumer<BudgetService>(
+                  builder: ((context, value, child) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: value.items.length,
+                        physics: const ClampingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return TransactionCard(
+                            item: value.items[index],
+                          );
+                        });
+                  }),
+                )
               ],
             ),
           ),
