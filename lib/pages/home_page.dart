@@ -2,6 +2,9 @@ import 'package:budget_tracker/components/add_transaction_dialog.dart';
 import 'package:budget_tracker/model/transaction_item.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
+
+import '../services/budget_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,6 +18,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final budgetService = Provider.of<BudgetService>(context);
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -43,29 +47,36 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  alignment: Alignment.topCenter,
-                  child: CircularPercentIndicator(
-                    radius: screenSize.width / 4,
-                    lineWidth: 10.0,
-                    percent: .5,
-                    backgroundColor: Colors.white,
-                    center: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text(
-                          "\$0",
-                          style: TextStyle(
-                              fontSize: 48, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "Balance",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
-                    ),
-                    progressColor: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
+                    alignment: Alignment.topCenter,
+                    child: Consumer<BudgetService>(
+                      builder: ((context, value, child) {
+                        return CircularPercentIndicator(
+                          radius: screenSize.width / 4,
+                          lineWidth: 10.0,
+                          percent: .5,
+                          backgroundColor: Colors.white,
+                          center: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "\$0",
+                                style: TextStyle(
+                                    fontSize: 48, fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                "Balance",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Text(
+                                "Budget: \$" + value.budget.toString(),
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ],
+                          ),
+                          progressColor: Theme.of(context).colorScheme.primary,
+                        );
+                      }),
+                    )),
                 const SizedBox(
                   height: 35,
                 ),

@@ -4,7 +4,8 @@ import 'package:budget_tracker/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/ThemeService.dart';
+import '../services/budget_service.dart';
+import '../services/theme_service.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -42,7 +43,11 @@ class _HomeState extends State<Home> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return AddBudgetDialog(budgetToAdd: (budget) {});
+                  return AddBudgetDialog(budgetToAdd: (budget) {
+                    final budgetService =
+                        Provider.of<BudgetService>(context, listen: false);
+                    budgetService.budget = budget;
+                  });
                 },
               );
             },
