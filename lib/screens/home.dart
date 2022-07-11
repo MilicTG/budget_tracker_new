@@ -4,7 +4,7 @@ import 'package:budget_tracker/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../services/budget_service.dart';
+import '../view_model/budget_view_model.dart';
 import '../services/theme_service.dart';
 
 class Home extends StatefulWidget {
@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
                 builder: (context) {
                   return AddBudgetDialog(budgetToAdd: (budget) {
                     final budgetService =
-                        Provider.of<BudgetService>(context, listen: false);
+                        Provider.of<BudgeViewModel>(context, listen: false);
                     budgetService.budget = budget;
                   });
                 },

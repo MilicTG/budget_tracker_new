@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-import '../services/budget_service.dart';
+import '../view_model/budget_view_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final budgetService = Provider.of<BudgetService>(context);
+    final budgeViewModel = Provider.of<BudgeViewModel>(context);
     final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -22,7 +22,7 @@ class HomePage extends StatelessWidget {
               return AddTransactionDialog(
                 itemToAdd: (transactionItem) {
                   final budgetService =
-                      Provider.of<BudgetService>(context, listen: false);
+                      Provider.of<BudgeViewModel>(context, listen: false);
                   budgetService.addItem(transactionItem);
                 },
               );
@@ -41,18 +41,29 @@ class HomePage extends StatelessWidget {
               children: [
                 Container(
                     alignment: Alignment.topCenter,
-                    child: Consumer<BudgetService>(
+                    child: Consumer<BudgeViewModel>(
                       builder: ((context, value, child) {
+                        final balance = value.getBalance();
+                        final budget = value.getBudget();
+                        double percentage = balance / budget;
+                        // Making sure percentage isnt negative and isnt bigger than 1
+                        if (percentage < 0) {
+                          percentage = 0;
+                        }
+                        if (percentage > 1) {
+                          percentage = 1;
+                        }
+
                         return CircularPercentIndicator(
                           radius: screenSize.width / 4,
                           lineWidth: 10.0,
-                          percent: value.balance / value.budget,
+                          percent: percentage,
                           backgroundColor: Colors.white,
                           center: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                "\$${value.balance.toString().split(".")[0]}",
+                                "\$${balance.toString().split(".")[0]}",
                                 style: const TextStyle(
                                     fontSize: 48, fontWeight: FontWeight.bold),
                               ),
@@ -61,7 +72,7 @@ class HomePage extends StatelessWidget {
                                 style: TextStyle(fontSize: 18),
                               ),
                               Text(
-                                "Budget: \$${value.budget}",
+                                "Budget: \$${budget.toString()}",
                                 style: const TextStyle(fontSize: 10),
                               ),
                             ],
@@ -80,7 +91,7 @@ class HomePage extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Consumer<BudgetService>(
+                Consumer<BudgeViewModel>(
                   builder: ((context, value, child) {
                     return ListView.builder(
                         shrinkWrap: true,
@@ -107,40 +118,33 @@ class TransactionCard extends StatelessWidget {
   const TransactionCard({required this.item, Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5.0, top: 5.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          borderRadius: BorderRadius.circular(15.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.05),
-              offset: const Offset(0, 25),
-              blurRadius: 50,
-            )
-          ],
-        ),
-        padding: const EdgeInsets.all(15.0),
-        width: MediaQuery.of(context).size.width,
-        child: Row(
-          children: [
-            Text(
-              item.itemTitle,
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              (!item.isExpense ? "+ " : "- ") + item.amount.toString(),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return GestureDetector(
+        onTap: (() => showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Row(children: [
+                    const Text("Delete item"),
+                    const Spacer(),
+                    TextButton(
+                        onPressed: () {
+                          final budgetViewModel = Provider.of<BudgeViewModel>(
+                              context,
+                              listen: false);
+                          budgetViewModel.deleteItem(item);
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Yes")),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("No"))
+                  ]),
+                ),
+              );
+            })));
   }
 }
