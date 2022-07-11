@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeService>(
             create: (_) => ThemeService(sharedPreferences)),
-        ChangeNotifierProvider<BudgetService>(create: (_) => BudgetService()),
+        ChangeNotifierProvider<BudgeViewModel>(create: (_) => BudgeViewModel()),
       ],
       child: Builder(
         builder: (BuildContext context) {
